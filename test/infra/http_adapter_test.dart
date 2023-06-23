@@ -24,6 +24,8 @@ class HttpAdapter implements HttpClient {
     final response = await client.get(Uri.parse(url), headers: customHeaders);
     if (response.statusCode == 401) {
       throw HttpError.unauthorized;
+    } else if (response.statusCode == 404) {
+      throw HttpError.notFound;
     }
     return jsonDecode(response.body);
   }
@@ -68,5 +70,16 @@ void main() {
     final future = sut.request(url: url, method: 'GET', headers: headers);
 
     expect(future, throwsA(HttpError.unauthorized));
+  });
+
+  test('Should return NotFoundError if GET returns 404', () async {
+    when(
+      () => clientSpy.get(any(), headers: any(named: 'headers')),
+    ).thenAnswer(
+      (_) async => Response('{"any_key": "any_value"}', 404),
+    );
+    final future = sut.request(url: url, method: 'GET', headers: headers);
+
+    expect(future, throwsA(HttpError.notFound));
   });
 }
