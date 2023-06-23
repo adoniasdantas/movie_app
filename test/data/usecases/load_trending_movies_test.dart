@@ -42,20 +42,26 @@ class ApiKeySpy extends Mock implements ApiKey {}
 class HttpClientSpy extends Mock implements HttpClient {}
 
 void main() {
-  test('Should call httpClient with correct values', () async {
-    final httpClient = HttpClientSpy();
-    final url = faker.internet.httpUrl();
-    final token = faker.jwt.valid();
-    when(() => httpClient.request(
+  late HttpClientSpy httpClientSpy;
+  late String url;
+  late String token;
+  late LoadTrendingMovies sut;
+
+  setUp(() {
+    httpClientSpy = HttpClientSpy();
+    url = faker.internet.httpUrl();
+    token = faker.jwt.valid();
+    when(() => httpClientSpy.request(
         url: any(named: 'url'),
         method: any(named: 'method'),
         headers: any(named: 'headers'))).thenAnswer((_) async => _);
+    sut = LoadTrendingMovies(httpClient: httpClientSpy, token: token);
+  });
 
-    final sut = LoadTrendingMovies(httpClient: httpClient, token: token);
-
+  test('Should call httpClient with correct values', () async {
     await sut(url);
 
-    verify(() => httpClient.request(
+    verify(() => httpClientSpy.request(
           url: url,
           method: 'GET',
           headers: {
