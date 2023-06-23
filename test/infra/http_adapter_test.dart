@@ -30,6 +30,8 @@ class HttpAdapter implements HttpClient {
       throw HttpError.unauthorized;
     } else if (response.statusCode == 404) {
       throw HttpError.notFound;
+    } else if (response.statusCode >= 500) {
+      throw HttpError.serverError;
     }
     return jsonDecode(response.body);
   }
@@ -129,5 +131,16 @@ void main() {
     final future = sut.request(url: url, method: 'GET', headers: headers);
 
     expect(future, throwsA(HttpError.badRequest));
+  });
+
+  test('Should return ServerError if GET returns value >= 500', () async {
+    when(
+      () => clientSpy.get(any(), headers: any(named: 'headers')),
+    ).thenAnswer(
+      (_) async => Response('{"any_key": "any_value"}', 500),
+    );
+    final future = sut.request(url: url, method: 'GET', headers: headers);
+
+    expect(future, throwsA(HttpError.serverError));
   });
 }
