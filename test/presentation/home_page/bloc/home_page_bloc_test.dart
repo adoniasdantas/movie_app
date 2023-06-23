@@ -2,8 +2,11 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+
 import 'package:movie_app/data/usecases/usecases.dart';
+
 import 'package:movie_app/domain/entities/movie_entity.dart';
+import 'package:movie_app/domain/errors/errors.dart';
 
 import 'package:movie_app/presentation/home_page/bloc/home_page_bloc.dart';
 
@@ -51,6 +54,22 @@ void main() {
       isA<HomePageLoading>(),
       isA<HomePageSuccess>()
           .having((success) => success.movies, 'movies', movieList)
+    ],
+  );
+
+  blocTest(
+    'emits [HomePageStateError] if loadMovies throws any error',
+    build: () => HomePageBloc(loadTrendingMovies: loadTrendingMoviesSpy),
+    act: (bloc) {
+      when(() => loadTrendingMoviesSpy(any()))
+          .thenThrow(DomainError.unexpected);
+      bloc.add(LoadTrendingMoviesEvent());
+    },
+    verify: (_) => verify(() => loadTrendingMoviesSpy(any())).called(1),
+    expect: () => [
+      isA<HomePageLoading>(),
+      isA<HomePageError>().having(
+          (errorState) => errorState.error, 'error', DomainError.unexpected)
     ],
   );
 }

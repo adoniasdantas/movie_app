@@ -15,3 +15,8 @@ class HomePageSuccess extends HomePageState {
   final List<MovieEntity> movies;
   const HomePageSuccess(this.movies);
 }
+
+class HomePageError extends HomePageState {
+  final DomainError error;
+  const HomePageError(this.error);
+}
