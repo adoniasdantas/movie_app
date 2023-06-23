@@ -25,20 +25,24 @@ class HttpAdapter implements HttpClient {
 }
 
 void main() {
-  test('Should call GET with correct values', () async {
-    final clientSpy = ClientSpy();
-    final sut = HttpAdapter(client: clientSpy);
-    final url = faker.internet.httpUrl();
-    final token = faker.jwt.valid();
+  late ClientSpy clientSpy;
+  late HttpAdapter sut;
+  late String url;
+  late String token;
+  late Map<String, String> headers;
+
+  setUp(() {
+    clientSpy = ClientSpy();
+    url = faker.internet.httpUrl();
+    token = faker.jwt.valid();
+    headers = {'accept': 'application/json', 'Authorization': 'Bearer $token'};
+    sut = HttpAdapter(client: clientSpy);
     registerFallbackValue(Uri.parse(url));
     when(() => clientSpy.get(any(), headers: any(named: 'headers')))
         .thenAnswer((_) async => Response("{}", 200));
+  });
 
-    final headers = {
-      'accept': 'application/json',
-      'Authorization': 'Bearer $token'
-    };
-
+  test('Should call GET with correct values', () async {
     await sut.request(url: url, method: 'GET', headers: headers);
 
     verify(() => clientSpy.get(Uri.parse(url), headers: headers));
