@@ -132,4 +132,15 @@ void main() {
 
     expect(future, throwsA(DomainError.unexpected));
   });
+
+  test('Should throw UnexpectedError if HttpClient returns 500', () async {
+    when(() => httpClientSpy.request(
+        url: any(named: 'url'),
+        method: any(named: 'method'),
+        headers: any(named: 'headers'))).thenThrow(HttpError.serverError);
+
+    final future = sut(url);
+
+    expect(future, throwsA(DomainError.unexpected));
+  });
 }
