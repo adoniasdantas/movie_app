@@ -27,7 +27,7 @@ class MovieModel {
         title: json['title'],
         overview: json['overview'],
         averageGrade: json['averageGrade'],
-        releaseDate: json['releaseDate'],
+        releaseDate: DateTime.parse(json['releaseDate']),
         posterPath: json['posterPath'],
         genres:
             (json['genres'] as List?)?.map<String>((genre) => genre).toList(),

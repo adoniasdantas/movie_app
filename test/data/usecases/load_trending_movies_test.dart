@@ -40,7 +40,7 @@ void main() {
           "title": faker.lorem.sentence(),
           "overview": faker.lorem.sentence(),
           "averageGrade": faker.randomGenerator.decimal(scale: 2, min: 0),
-          "releaseDate": faker.date.dateTime(),
+          "releaseDate": '2023-01-01',
           "posterPath": faker.internet.httpUrl(),
         },
         {
@@ -48,7 +48,7 @@ void main() {
           "title": faker.lorem.sentence(),
           "overview": faker.lorem.sentence(),
           "averageGrade": faker.randomGenerator.decimal(scale: 2, min: 0),
-          "releaseDate": faker.date.dateTime(),
+          "releaseDate": '2023-01-02',
           "posterPath": faker.internet.httpUrl(),
         },
       ]
@@ -78,7 +78,7 @@ void main() {
         title: result[0].title,
         overview: result[0].overview,
         averageGrade: result[0].averageGrade,
-        releaseDate: result[0].releaseDate,
+        releaseDate: DateTime.parse('2023-01-01'),
         posterPath: result[0].posterPath,
       ),
       MovieEntity(
@@ -86,7 +86,7 @@ void main() {
         title: result[1].title,
         overview: result[1].overview,
         averageGrade: result[1].averageGrade,
-        releaseDate: result[1].releaseDate,
+        releaseDate: DateTime.parse('2023-01-02'),
         posterPath: result[1].posterPath,
       ),
     ]);
