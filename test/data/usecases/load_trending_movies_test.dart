@@ -27,8 +27,10 @@ class LoadTrendingMovies implements LoadMovies {
       return (data['results'] as List)
           .map((movieJson) => MovieEntity.fromJson(movieJson))
           .toList();
-    } on HttpError {
-      throw DomainError.unexpected;
+    } on HttpError catch (httpError) {
+      throw httpError == HttpError.unauthorized
+          ? DomainError.accessDenied
+          : DomainError.unexpected;
     }
   }
 }
@@ -142,5 +144,16 @@ void main() {
     final future = sut(url);
 
     expect(future, throwsA(DomainError.unexpected));
+  });
+
+  test('Should throw AccessDeniedError if HttpClient returns 401', () async {
+    when(() => httpClientSpy.request(
+        url: any(named: 'url'),
+        method: any(named: 'method'),
+        headers: any(named: 'headers'))).thenThrow(HttpError.unauthorized);
+
+    final future = sut(url);
+
+    expect(future, throwsA(DomainError.accessDenied));
   });
 }
