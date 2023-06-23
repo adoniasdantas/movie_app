@@ -19,16 +19,6 @@ class MovieEntity extends Equatable {
     this.genres,
   });
 
-  MovieEntity.fromJson(Map<String, dynamic> json)
-      : id = json['id'],
-        title = json['title'],
-        overview = json['overview'],
-        averageGrade = json['averageGrade'],
-        releaseDate = json['releaseDate'],
-        posterPath = json['posterPath'],
-        genres =
-            (json['genres'] as List?)?.map<String>((genre) => genre).toList();
-
   @override
   List<Object?> get props =>
       [id, title, overview, averageGrade, releaseDate, posterPath, genres];

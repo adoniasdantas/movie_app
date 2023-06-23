@@ -1,11 +1,12 @@
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+
 import 'package:movie_app/data/http/http.dart';
+import 'package:movie_app/data/models/models.dart';
 
 import 'package:movie_app/domain/entities/movie_entity.dart';
 import 'package:movie_app/domain/errors/errors.dart';
-
 import 'package:movie_app/domain/usecases/load_movies.dart';
 
 class LoadTrendingMovies implements LoadMovies {
@@ -25,7 +26,7 @@ class LoadTrendingMovies implements LoadMovies {
         'Authorization': 'Bearer $token'
       });
       return (data['results'] as List)
-          .map((movieJson) => MovieEntity.fromJson(movieJson))
+          .map((movieJson) => MovieModel.fromJson(movieJson).toEntity())
           .toList();
     } on HttpError catch (httpError) {
       throw httpError == HttpError.unauthorized
