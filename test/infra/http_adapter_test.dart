@@ -22,7 +22,7 @@ class HttpAdapter implements HttpClient {
   }) async {
     final customHeaders = headers?.cast<String, String>();
     final response = await client.get(Uri.parse(url), headers: customHeaders);
-    if (response.statusCode == 400) {
+    if (response.statusCode == 400 || response.statusCode == 405) {
       throw HttpError.badRequest;
     } else if (response.statusCode == 401 || response.statusCode == 403) {
       throw HttpError.unauthorized;
@@ -105,5 +105,16 @@ void main() {
     final future = sut.request(url: url, method: 'GET', headers: headers);
 
     expect(future, throwsA(HttpError.notFound));
+  });
+
+  test('Should return BadRequestError if GET returns 405', () async {
+    when(
+      () => clientSpy.get(any(), headers: any(named: 'headers')),
+    ).thenAnswer(
+      (_) async => Response('{"any_key": "any_value"}', 405),
+    );
+    final future = sut.request(url: url, method: 'GET', headers: headers);
+
+    expect(future, throwsA(HttpError.badRequest));
   });
 }
