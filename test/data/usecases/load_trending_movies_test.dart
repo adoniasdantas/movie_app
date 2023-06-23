@@ -21,7 +21,9 @@ class LoadTrendingMovies implements LoadMovies {
       'accept': 'application/json',
       'Authorization': 'Bearer $token'
     });
-    return Future.value([]);
+    return (data['results'] as List)
+        .map((movieJson) => MovieEntity.fromJson(movieJson))
+        .toList();
   }
 }
 
@@ -51,10 +53,30 @@ void main() {
     httpClientSpy = HttpClientSpy();
     url = faker.internet.httpUrl();
     token = faker.jwt.valid();
-    when(() => httpClientSpy.request(
-        url: any(named: 'url'),
-        method: any(named: 'method'),
-        headers: any(named: 'headers'))).thenAnswer((_) async => _);
+    when(() =>
+        httpClientSpy.request(
+            url: any(named: 'url'),
+            method: any(named: 'method'),
+            headers: any(named: 'headers'))).thenAnswer((_) async => {
+          'results': [
+            {
+              "id": faker.randomGenerator.integer(100),
+              "title": faker.lorem.sentence(),
+              "overview": faker.lorem.sentence(),
+              "averageGrade": faker.randomGenerator.decimal(scale: 2, min: 0),
+              "releaseDate": faker.date.dateTime(),
+              "posterPath": faker.internet.httpUrl(),
+            },
+            {
+              "id": faker.randomGenerator.integer(100),
+              "title": faker.lorem.sentence(),
+              "overview": faker.lorem.sentence(),
+              "averageGrade": faker.randomGenerator.decimal(scale: 2, min: 0),
+              "releaseDate": faker.date.dateTime(),
+              "posterPath": faker.internet.httpUrl(),
+            },
+          ]
+        });
     sut = LoadTrendingMovies(httpClient: httpClientSpy, token: token);
   });
 
@@ -69,5 +91,28 @@ void main() {
             'Authorization': 'Bearer $token'
           },
         )).called(1);
+  });
+
+  test('Should return a list of MovieEntity', () async {
+    final result = await sut(url);
+
+    expect(result, [
+      MovieEntity(
+        id: result[0].id,
+        title: result[0].title,
+        overview: result[0].overview,
+        averageGrade: result[0].averageGrade,
+        releaseDate: result[0].releaseDate,
+        posterPath: result[0].posterPath,
+      ),
+      MovieEntity(
+        id: result[1].id,
+        title: result[1].title,
+        overview: result[1].overview,
+        averageGrade: result[1].averageGrade,
+        releaseDate: result[1].releaseDate,
+        posterPath: result[1].posterPath,
+      ),
+    ]);
   });
 }
