@@ -24,7 +24,7 @@ class HttpAdapter implements HttpClient {
     final response = await client.get(Uri.parse(url), headers: customHeaders);
     if (response.statusCode == 400) {
       throw HttpError.badRequest;
-    } else if (response.statusCode == 401) {
+    } else if (response.statusCode == 401 || response.statusCode == 403) {
       throw HttpError.unauthorized;
     } else if (response.statusCode == 404) {
       throw HttpError.notFound;
@@ -79,6 +79,17 @@ void main() {
       () => clientSpy.get(any(), headers: any(named: 'headers')),
     ).thenAnswer(
       (_) async => Response('{"any_key": "any_value"}', 401),
+    );
+    final future = sut.request(url: url, method: 'GET', headers: headers);
+
+    expect(future, throwsA(HttpError.unauthorized));
+  });
+
+  test('Should return UnauthorizedError if GET returns 403', () async {
+    when(
+      () => clientSpy.get(any(), headers: any(named: 'headers')),
+    ).thenAnswer(
+      (_) async => Response('{"any_key": "any_value"}', 403),
     );
     final future = sut.request(url: url, method: 'GET', headers: headers);
 
