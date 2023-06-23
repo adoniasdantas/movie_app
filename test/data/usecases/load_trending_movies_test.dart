@@ -1,8 +1,10 @@
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:movie_app/data/http/http.dart';
 
 import 'package:movie_app/domain/entities/movie_entity.dart';
+import 'package:movie_app/domain/errors/errors.dart';
 
 import 'package:movie_app/domain/usecases/load_movies.dart';
 
@@ -17,13 +19,17 @@ class LoadTrendingMovies implements LoadMovies {
 
   @override
   Future<List<MovieEntity>> call(String url) async {
-    final data = await httpClient.request(url: url, method: 'GET', headers: {
-      'accept': 'application/json',
-      'Authorization': 'Bearer $token'
-    });
-    return (data['results'] as List)
-        .map((movieJson) => MovieEntity.fromJson(movieJson))
-        .toList();
+    try {
+      final data = await httpClient.request(url: url, method: 'GET', headers: {
+        'accept': 'application/json',
+        'Authorization': 'Bearer $token'
+      });
+      return (data['results'] as List)
+          .map((movieJson) => MovieEntity.fromJson(movieJson))
+          .toList();
+    } on HttpError {
+      throw DomainError.unexpected;
+    }
   }
 }
 
@@ -114,5 +120,16 @@ void main() {
         posterPath: result[1].posterPath,
       ),
     ]);
+  });
+
+  test('Should throw UnexpectedError if HttpClient returns 404', () async {
+    when(() => httpClientSpy.request(
+        url: any(named: 'url'),
+        method: any(named: 'method'),
+        headers: any(named: 'headers'))).thenThrow(HttpError.notFound);
+
+    final future = sut(url);
+
+    expect(future, throwsA(DomainError.unexpected));
   });
 }
