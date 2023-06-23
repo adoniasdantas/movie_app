@@ -15,13 +15,26 @@ class HttpAdapter implements HttpClient {
   const HttpAdapter({required this.client});
 
   @override
-  Future request({
+  Future<dynamic> request({
     required String url,
     required String method,
     Map? headers,
   }) async {
     final customHeaders = headers?.cast<String, String>();
-    final response = await client.get(Uri.parse(url), headers: customHeaders);
+    try {
+      final response = await client.get(Uri.parse(url), headers: customHeaders);
+      return _decodeResponse(response);
+    } on HttpError {
+      rethrow;
+    } catch (_) {
+      throw HttpError.serverError;
+    }
+  }
+
+  dynamic _decodeResponse(Response response) {
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
     if (response.statusCode == 400 ||
         response.statusCode == 405 ||
         response.statusCode == 406) {
@@ -33,7 +46,6 @@ class HttpAdapter implements HttpClient {
     } else if (response.statusCode >= 500) {
       throw HttpError.serverError;
     }
-    return jsonDecode(response.body);
   }
 }
 
@@ -139,6 +151,15 @@ void main() {
     ).thenAnswer(
       (_) async => Response('{"any_key": "any_value"}', 500),
     );
+    final future = sut.request(url: url, method: 'GET', headers: headers);
+
+    expect(future, throwsA(HttpError.serverError));
+  });
+
+  test('Should return ServerError if GET throws any Exception', () async {
+    when(
+      () => clientSpy.get(any(), headers: any(named: 'headers')),
+    ).thenThrow(Exception());
     final future = sut.request(url: url, method: 'GET', headers: headers);
 
     expect(future, throwsA(HttpError.serverError));
