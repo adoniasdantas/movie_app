@@ -35,10 +35,6 @@ class LoadTrendingMovies implements LoadMovies {
   }
 }
 
-abstract class ApiKey {
-  String get apiKey;
-}
-
 abstract class HttpClient {
   Future<dynamic> request({
     required String url,
@@ -46,8 +42,6 @@ abstract class HttpClient {
     Map headers,
   });
 }
-
-class ApiKeySpy extends Mock implements ApiKey {}
 
 class HttpClientSpy extends Mock implements HttpClient {}
 
@@ -57,34 +51,43 @@ void main() {
   late String token;
   late LoadTrendingMovies sut;
 
+  When mockRequest() => when(
+        () => httpClientSpy.request(
+          url: any(named: 'url'),
+          method: any(named: 'method'),
+          headers: any(named: 'headers'),
+        ),
+      );
+
+  void mockRequestCall(dynamic data) =>
+      mockRequest().thenAnswer((_) async => data);
+
+  void mockRequestError(HttpError error) => mockRequest().thenThrow(error);
+
   setUp(() {
     httpClientSpy = HttpClientSpy();
     url = faker.internet.httpUrl();
     token = faker.jwt.valid();
-    when(() =>
-        httpClientSpy.request(
-            url: any(named: 'url'),
-            method: any(named: 'method'),
-            headers: any(named: 'headers'))).thenAnswer((_) async => {
-          'results': [
-            {
-              "id": faker.randomGenerator.integer(100),
-              "title": faker.lorem.sentence(),
-              "overview": faker.lorem.sentence(),
-              "averageGrade": faker.randomGenerator.decimal(scale: 2, min: 0),
-              "releaseDate": faker.date.dateTime(),
-              "posterPath": faker.internet.httpUrl(),
-            },
-            {
-              "id": faker.randomGenerator.integer(100),
-              "title": faker.lorem.sentence(),
-              "overview": faker.lorem.sentence(),
-              "averageGrade": faker.randomGenerator.decimal(scale: 2, min: 0),
-              "releaseDate": faker.date.dateTime(),
-              "posterPath": faker.internet.httpUrl(),
-            },
-          ]
-        });
+    mockRequestCall({
+      'results': [
+        {
+          "id": faker.randomGenerator.integer(100),
+          "title": faker.lorem.sentence(),
+          "overview": faker.lorem.sentence(),
+          "averageGrade": faker.randomGenerator.decimal(scale: 2, min: 0),
+          "releaseDate": faker.date.dateTime(),
+          "posterPath": faker.internet.httpUrl(),
+        },
+        {
+          "id": faker.randomGenerator.integer(100),
+          "title": faker.lorem.sentence(),
+          "overview": faker.lorem.sentence(),
+          "averageGrade": faker.randomGenerator.decimal(scale: 2, min: 0),
+          "releaseDate": faker.date.dateTime(),
+          "posterPath": faker.internet.httpUrl(),
+        },
+      ]
+    });
     sut = LoadTrendingMovies(httpClient: httpClientSpy, token: token);
   });
 
@@ -125,10 +128,7 @@ void main() {
   });
 
   test('Should throw UnexpectedError if HttpClient returns 404', () async {
-    when(() => httpClientSpy.request(
-        url: any(named: 'url'),
-        method: any(named: 'method'),
-        headers: any(named: 'headers'))).thenThrow(HttpError.notFound);
+    mockRequestError(HttpError.notFound);
 
     final future = sut(url);
 
@@ -136,10 +136,7 @@ void main() {
   });
 
   test('Should throw UnexpectedError if HttpClient returns 500', () async {
-    when(() => httpClientSpy.request(
-        url: any(named: 'url'),
-        method: any(named: 'method'),
-        headers: any(named: 'headers'))).thenThrow(HttpError.serverError);
+    mockRequestError(HttpError.serverError);
 
     final future = sut(url);
 
@@ -147,10 +144,7 @@ void main() {
   });
 
   test('Should throw AccessDeniedError if HttpClient returns 401', () async {
-    when(() => httpClientSpy.request(
-        url: any(named: 'url'),
-        method: any(named: 'method'),
-        headers: any(named: 'headers'))).thenThrow(HttpError.unauthorized);
+    mockRequestError(HttpError.unauthorized);
 
     final future = sut(url);
 
