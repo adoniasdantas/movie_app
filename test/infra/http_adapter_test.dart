@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
@@ -19,8 +21,8 @@ class HttpAdapter implements HttpClient {
     Map? headers,
   }) async {
     final customHeaders = headers?.cast<String, String>();
-    await client.get(Uri.parse(url), headers: customHeaders);
-    return Future.value('');
+    final response = await client.get(Uri.parse(url), headers: customHeaders);
+    return jsonDecode(response.body);
   }
 }
 
@@ -39,12 +41,18 @@ void main() {
     sut = HttpAdapter(client: clientSpy);
     registerFallbackValue(Uri.parse(url));
     when(() => clientSpy.get(any(), headers: any(named: 'headers')))
-        .thenAnswer((_) async => Response("{}", 200));
+        .thenAnswer((_) async => Response('{"any_key": "any_value"}', 200));
   });
 
   test('Should call GET with correct values', () async {
     await sut.request(url: url, method: 'GET', headers: headers);
 
     verify(() => clientSpy.get(Uri.parse(url), headers: headers));
+  });
+
+  test('Should return data if GET returns 200', () async {
+    final result = await sut.request(url: url, method: 'GET', headers: headers);
+
+    expect(result, {"any_key": "any_value"});
   });
 }
