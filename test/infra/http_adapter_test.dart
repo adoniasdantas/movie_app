@@ -15,112 +15,93 @@ void main() {
   late String token;
   late Map<String, String> headers;
 
-  setUp(() {
-    clientSpy = ClientSpy();
-    url = faker.internet.httpUrl();
-    token = faker.jwt.valid();
-    headers = {'accept': 'application/json', 'Authorization': 'Bearer $token'};
-    sut = HttpAdapter(client: clientSpy);
-    registerFallbackValue(Uri.parse(url));
-    when(() => clientSpy.get(any(), headers: any(named: 'headers')))
-        .thenAnswer((_) async => Response('{"any_key": "any_value"}', 200));
-  });
+  group('GET Request', () {
+    When mockClientGet() =>
+        when(() => clientSpy.get(any(), headers: any(named: 'headers')));
 
-  test('Should call GET with correct values', () async {
-    await sut.request(url: url, method: 'GET', headers: headers);
+    void mockClientGetCall(Response response) =>
+        mockClientGet().thenAnswer((_) async => response);
 
-    verify(() => clientSpy.get(Uri.parse(url), headers: headers));
-  });
+    setUp(() {
+      clientSpy = ClientSpy();
+      url = faker.internet.httpUrl();
+      token = faker.jwt.valid();
+      headers = {
+        'accept': 'application/json',
+        'Authorization': 'Bearer $token'
+      };
+      sut = HttpAdapter(client: clientSpy);
+      registerFallbackValue(Uri.parse(url));
+      mockClientGetCall(Response('{"any_key": "any_value"}', 200));
+    });
 
-  test('Should return data if GET returns 200', () async {
-    final result = await sut.request(url: url, method: 'GET', headers: headers);
+    test('Should call GET with correct values', () async {
+      await sut.request(url: url, method: 'GET', headers: headers);
 
-    expect(result, {"any_key": "any_value"});
-  });
+      verify(() => clientSpy.get(Uri.parse(url), headers: headers));
+    });
 
-  test('Should return BadRequestError if GET returns 400', () async {
-    when(
-      () => clientSpy.get(any(), headers: any(named: 'headers')),
-    ).thenAnswer(
-      (_) async => Response('{"any_key": "any_value"}', 400),
-    );
-    final future = sut.request(url: url, method: 'GET', headers: headers);
+    test('Should return data if GET returns 200', () async {
+      final result =
+          await sut.request(url: url, method: 'GET', headers: headers);
 
-    expect(future, throwsA(HttpError.badRequest));
-  });
+      expect(result, {"any_key": "any_value"});
+    });
 
-  test('Should return UnauthorizedError if GET returns 401', () async {
-    when(
-      () => clientSpy.get(any(), headers: any(named: 'headers')),
-    ).thenAnswer(
-      (_) async => Response('{"any_key": "any_value"}', 401),
-    );
-    final future = sut.request(url: url, method: 'GET', headers: headers);
+    test('Should return BadRequestError if GET returns 400', () async {
+      mockClientGetCall(Response('{"any_key": "any_value"}', 400));
+      final future = sut.request(url: url, method: 'GET', headers: headers);
 
-    expect(future, throwsA(HttpError.unauthorized));
-  });
+      expect(future, throwsA(HttpError.badRequest));
+    });
 
-  test('Should return UnauthorizedError if GET returns 403', () async {
-    when(
-      () => clientSpy.get(any(), headers: any(named: 'headers')),
-    ).thenAnswer(
-      (_) async => Response('{"any_key": "any_value"}', 403),
-    );
-    final future = sut.request(url: url, method: 'GET', headers: headers);
+    test('Should return UnauthorizedError if GET returns 401', () async {
+      mockClientGetCall(Response('{"any_key": "any_value"}', 401));
+      final future = sut.request(url: url, method: 'GET', headers: headers);
 
-    expect(future, throwsA(HttpError.unauthorized));
-  });
+      expect(future, throwsA(HttpError.unauthorized));
+    });
 
-  test('Should return NotFoundError if GET returns 404', () async {
-    when(
-      () => clientSpy.get(any(), headers: any(named: 'headers')),
-    ).thenAnswer(
-      (_) async => Response('{"any_key": "any_value"}', 404),
-    );
-    final future = sut.request(url: url, method: 'GET', headers: headers);
+    test('Should return UnauthorizedError if GET returns 403', () async {
+      mockClientGetCall(Response('{"any_key": "any_value"}', 403));
+      final future = sut.request(url: url, method: 'GET', headers: headers);
 
-    expect(future, throwsA(HttpError.notFound));
-  });
+      expect(future, throwsA(HttpError.unauthorized));
+    });
 
-  test('Should return BadRequestError if GET returns 405', () async {
-    when(
-      () => clientSpy.get(any(), headers: any(named: 'headers')),
-    ).thenAnswer(
-      (_) async => Response('{"any_key": "any_value"}', 405),
-    );
-    final future = sut.request(url: url, method: 'GET', headers: headers);
+    test('Should return NotFoundError if GET returns 404', () async {
+      mockClientGetCall(Response('{"any_key": "any_value"}', 404));
+      final future = sut.request(url: url, method: 'GET', headers: headers);
 
-    expect(future, throwsA(HttpError.badRequest));
-  });
+      expect(future, throwsA(HttpError.notFound));
+    });
 
-  test('Should return BadRequestError if GET returns 406', () async {
-    when(
-      () => clientSpy.get(any(), headers: any(named: 'headers')),
-    ).thenAnswer(
-      (_) async => Response('{"any_key": "any_value"}', 406),
-    );
-    final future = sut.request(url: url, method: 'GET', headers: headers);
+    test('Should return BadRequestError if GET returns 405', () async {
+      mockClientGetCall(Response('{"any_key": "any_value"}', 405));
+      final future = sut.request(url: url, method: 'GET', headers: headers);
 
-    expect(future, throwsA(HttpError.badRequest));
-  });
+      expect(future, throwsA(HttpError.badRequest));
+    });
 
-  test('Should return ServerError if GET returns value >= 500', () async {
-    when(
-      () => clientSpy.get(any(), headers: any(named: 'headers')),
-    ).thenAnswer(
-      (_) async => Response('{"any_key": "any_value"}', 500),
-    );
-    final future = sut.request(url: url, method: 'GET', headers: headers);
+    test('Should return BadRequestError if GET returns 406', () async {
+      mockClientGetCall(Response('{"any_key": "any_value"}', 406));
+      final future = sut.request(url: url, method: 'GET', headers: headers);
 
-    expect(future, throwsA(HttpError.serverError));
-  });
+      expect(future, throwsA(HttpError.badRequest));
+    });
 
-  test('Should return ServerError if GET throws any Exception', () async {
-    when(
-      () => clientSpy.get(any(), headers: any(named: 'headers')),
-    ).thenThrow(Exception());
-    final future = sut.request(url: url, method: 'GET', headers: headers);
+    test('Should return ServerError if GET returns value >= 500', () async {
+      mockClientGetCall(Response('{"any_key": "any_value"}', 500));
+      final future = sut.request(url: url, method: 'GET', headers: headers);
 
-    expect(future, throwsA(HttpError.serverError));
+      expect(future, throwsA(HttpError.serverError));
+    });
+
+    test('Should return ServerError if GET throws any Exception', () async {
+      mockClientGet().thenThrow(Exception());
+      final future = sut.request(url: url, method: 'GET', headers: headers);
+
+      expect(future, throwsA(HttpError.serverError));
+    });
   });
 }
