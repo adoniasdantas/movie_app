@@ -128,6 +128,28 @@ void main() {
     ]);
   });
 
+  test('Should return UnexpectedError if httpClient returns invalid data',
+      () async {
+    mockRequestCall(
+      {
+        'results': [
+          {
+            "Id": faker.randomGenerator.integer(100),
+            "Title": faker.lorem.sentence(),
+            "Overview": faker.lorem.sentence(),
+            "AverageGrade": faker.randomGenerator.decimal(scale: 2, min: 0),
+            "ReleaseDate": faker.date.dateTime(),
+            "PosterPath": faker.internet.httpUrl(),
+          },
+        ]
+      },
+    );
+
+    final future = sut(url);
+
+    expect(future, throwsA(DomainError.unexpected));
+  });
+
   test('Should throw UnexpectedError if HttpClient returns 404', () async {
     mockRequestError(HttpError.notFound);
 
