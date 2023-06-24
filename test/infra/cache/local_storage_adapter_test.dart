@@ -13,7 +13,7 @@ class LocalStorageAdapter implements CacheStorage {
   const LocalStorageAdapter({required this.localStorage});
 
   @override
-  Future<dynamic> fetch(String key) async {
+  Future<String> fetch(String key) async {
     try {
       return await localStorage.getItem(key);
     } catch (_) {
@@ -34,7 +34,7 @@ void main() {
     key = faker.lorem.sentence();
     localStorageSpy = LocalStorageSpy();
     sut = LocalStorageAdapter(localStorage: localStorageSpy);
-    resultData = faker.lorem.sentence();
+    resultData = "[1, 2, 3]";
     mockLocalStorageGetItem().thenAnswer((_) => resultData);
   });
 
