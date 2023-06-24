@@ -13,19 +13,33 @@ class LocalStorageAdapter implements CacheStorage {
 
   @override
   Future<dynamic> fetch(String key) async {
-    await localStorage.getItem(key);
+    return await localStorage.getItem(key);
   }
 }
 
 void main() {
-  test('Should call Local Storage with correct value', () async {
-    final key = faker.lorem.sentence();
-    final localStorageSpy = LocalStorageSpy();
-    final sut = LocalStorageAdapter(localStorage: localStorageSpy);
-    when(() => localStorageSpy.getItem(key)).thenAnswer((_) => _);
+  late LocalStorageSpy localStorageSpy;
+  late LocalStorageAdapter sut;
+  late String key;
+  late String resultData;
 
+  setUp(() async {
+    key = faker.lorem.sentence();
+    localStorageSpy = LocalStorageSpy();
+    sut = LocalStorageAdapter(localStorage: localStorageSpy);
+    resultData = faker.lorem.sentence();
+    when(() => localStorageSpy.getItem(key)).thenAnswer((_) => resultData);
+  });
+
+  test('Should call Local Storage with correct value', () async {
     await sut.fetch(key);
 
     verify(() => localStorageSpy.getItem(key)).called(1);
+  });
+
+  test('Should return data correctly', () async {
+    final data = await sut.fetch(key);
+
+    expect(data, resultData);
   });
 }
