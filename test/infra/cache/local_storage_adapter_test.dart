@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:movie_app/data/cache/cache.dart';
+import 'package:movie_app/domain/errors/errors.dart';
 
 class LocalStorageSpy extends Mock implements LocalStorage {}
 
@@ -13,7 +14,11 @@ class LocalStorageAdapter implements CacheStorage {
 
   @override
   Future<dynamic> fetch(String key) async {
-    return await localStorage.getItem(key);
+    try {
+      return await localStorage.getItem(key);
+    } catch (_) {
+      throw DomainError.unexpected;
+    }
   }
 }
 
@@ -23,12 +28,14 @@ void main() {
   late String key;
   late String resultData;
 
+  When mockLocalStorageGetItem() => when(() => localStorageSpy.getItem(key));
+
   setUp(() async {
     key = faker.lorem.sentence();
     localStorageSpy = LocalStorageSpy();
     sut = LocalStorageAdapter(localStorage: localStorageSpy);
     resultData = faker.lorem.sentence();
-    when(() => localStorageSpy.getItem(key)).thenAnswer((_) => resultData);
+    mockLocalStorageGetItem().thenAnswer((_) => resultData);
   });
 
   test('Should call Local Storage with correct value', () async {
@@ -41,5 +48,13 @@ void main() {
     final data = await sut.fetch(key);
 
     expect(data, resultData);
+  });
+
+  test('Should throw UnexpectedError if LocalStorage throws', () async {
+    mockLocalStorageGetItem().thenThrow(Exception());
+
+    final future = sut.fetch(key);
+
+    expect(future, throwsA(DomainError.unexpected));
   });
 }
