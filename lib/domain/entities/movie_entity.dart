@@ -5,8 +5,8 @@ class MovieEntity extends Equatable {
   final String title;
   final String overview;
   final double averageGrade;
-  final DateTime releaseDate;
   final String posterPath;
+  final DateTime? releaseDate;
   final List<String>? genres;
 
   const MovieEntity({
@@ -14,8 +14,8 @@ class MovieEntity extends Equatable {
     required this.title,
     required this.overview,
     required this.averageGrade,
-    required this.releaseDate,
     required this.posterPath,
+    this.releaseDate,
     this.genres,
   });
 

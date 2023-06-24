@@ -7,8 +7,8 @@ class MovieModel {
   final String title;
   final String overview;
   final num averageGrade;
-  final DateTime releaseDate;
   final String posterPath;
+  final DateTime? releaseDate;
   final List<String>? genres;
 
   const MovieModel({
@@ -16,8 +16,8 @@ class MovieModel {
     required this.title,
     required this.overview,
     required this.averageGrade,
-    required this.releaseDate,
     required this.posterPath,
+    this.releaseDate,
     this.genres,
   });
 
@@ -28,8 +28,8 @@ class MovieModel {
         title: json['title'],
         overview: json['overview'],
         averageGrade: (json['vote_average'] as num).toDouble(),
-        releaseDate: DateTime.parse(json['release_date']),
         posterPath: '$initialUrlJunk${json['poster_path']}',
+        releaseDate: DateTime.tryParse(json['release_date']),
         genres:
             (json['genres'] as List?)?.map<String>((genre) => genre).toList(),
       );
