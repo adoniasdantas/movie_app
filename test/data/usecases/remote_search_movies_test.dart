@@ -92,6 +92,8 @@ void main() {
   void mockRequestCall(dynamic data) =>
       mockRequest().thenAnswer((_) async => data);
 
+  void mockRequestError(HttpError error) => mockRequest().thenThrow(error);
+
   setUp(() {
     httpClientSpy = HttpClientSpy();
     url = faker.internet.httpUrl();
@@ -142,6 +144,14 @@ void main() {
   test('Should return UnexpectedError if httpClient returns invalid data',
       () async {
     mockRequestCall(invalidResponse);
+
+    final future = sut(url, movieName);
+
+    expect(future, throwsA(DomainError.unexpected));
+  });
+
+  test('Should throw UnexpectedError if HttpClient returns 404', () async {
+    mockRequestError(HttpError.notFound);
 
     final future = sut(url, movieName);
 
