@@ -110,6 +110,10 @@ class _HomePageState extends State<HomePage> {
                             maxLines: 3,
                             overflow: TextOverflow.fade,
                           ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.star_border),
+                            onPressed: () {},
+                          ),
                         );
                       },
                     );
