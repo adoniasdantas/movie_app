@@ -2,30 +2,12 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'package:movie_app/domain/errors/errors.dart';
-import 'package:movie_app/domain/usecases/usecases.dart';
+import 'package:movie_app/data/cache/cache.dart';
 
-abstract class CacheStorage {
-  Future<dynamic> fetch(String key);
-}
+import 'package:movie_app/domain/errors/errors.dart';
+import 'package:movie_app/data/usecases/usecases.dart';
 
 class CacheStorageSpy extends Mock implements CacheStorage {}
-
-class CacheLoadFavoriteMovies implements LoadFavoriteMovies {
-  final CacheStorage cacheStorage;
-
-  const CacheLoadFavoriteMovies({required this.cacheStorage});
-
-  @override
-  Future<List<int>> call() async {
-    try {
-      final movieIds = await cacheStorage.fetch('favorite-movies');
-      return movieIds;
-    } catch (_) {
-      throw DomainError.unexpected;
-    }
-  }
-}
 
 void main() {
   late CacheStorageSpy cacheStorageSpy;
@@ -39,7 +21,7 @@ void main() {
   });
 
   test('Should call cacheStorage with correct values', () async {
-    when(() => cacheStorageSpy.fetch(any())).thenAnswer((_) async => _);
+    when(() => cacheStorageSpy.fetch(any())).thenAnswer((_) async => data);
     await sut();
 
     verify(() => cacheStorageSpy.fetch('favorite-movies')).called(1);
