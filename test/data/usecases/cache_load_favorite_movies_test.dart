@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -12,14 +14,16 @@ class CacheStorageSpy extends Mock implements CacheStorage {}
 void main() {
   late CacheStorageSpy cacheStorageSpy;
   late CacheLoadFavoriteMovies sut;
-  late List<int> data;
+  late String data;
+  late List<int> resultData;
 
   When mockCacheStorageFetch() => when(() => cacheStorageSpy.fetch(any()));
 
   setUp(() {
     cacheStorageSpy = CacheStorageSpy();
     sut = CacheLoadFavoriteMovies(cacheStorage: cacheStorageSpy);
-    data = faker.randomGenerator.numbers(100, 3);
+    resultData = faker.randomGenerator.numbers(100, 3);
+    data = jsonEncode(resultData);
     mockCacheStorageFetch().thenAnswer((_) async => data);
   });
 
@@ -32,7 +36,7 @@ void main() {
   test('Should return a list of integers on success', () async {
     final movieIds = await sut();
 
-    expect(movieIds, data);
+    expect(movieIds, resultData);
   });
 
   test('Should throws UnexpectedError if cacheStorage throws', () async {

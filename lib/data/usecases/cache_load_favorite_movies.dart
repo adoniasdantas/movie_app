@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:movie_app/data/cache/cache.dart';
 
 import 'package:movie_app/domain/errors/errors.dart';
@@ -11,8 +13,9 @@ class CacheLoadFavoriteMovies implements LoadFavoriteMovies {
   @override
   Future<List<int>> call() async {
     try {
-      final movieIds = await cacheStorage.fetch('favorite-movies');
-      return movieIds;
+      final json = await cacheStorage.fetch('favorite-movies');
+      final movieIds = await jsonDecode(json) as List;
+      return movieIds.map((id) => id as int).toList();
     } catch (_) {
       throw DomainError.unexpected;
     }
