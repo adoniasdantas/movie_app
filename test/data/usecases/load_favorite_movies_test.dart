@@ -14,28 +14,30 @@ void main() {
   late CacheLoadFavoriteMovies sut;
   late List<int> data;
 
+  When mockCacheStorageFetch() => when(() => cacheStorageSpy.fetch(any()));
+
   setUp(() {
     cacheStorageSpy = CacheStorageSpy();
     sut = CacheLoadFavoriteMovies(cacheStorage: cacheStorageSpy);
     data = faker.randomGenerator.numbers(100, 3);
+    mockCacheStorageFetch().thenAnswer((_) async => data);
   });
 
   test('Should call cacheStorage with correct values', () async {
-    when(() => cacheStorageSpy.fetch(any())).thenAnswer((_) async => data);
     await sut();
 
     verify(() => cacheStorageSpy.fetch('favorite-movies')).called(1);
   });
 
   test('Should return a list of integers on success', () async {
-    when(() => cacheStorageSpy.fetch(any())).thenAnswer((_) async => data);
     final movieIds = await sut();
 
     expect(movieIds, data);
   });
 
   test('Should throws UnexpectedError if cacheStorage throws', () async {
-    when(() => cacheStorageSpy.fetch(any())).thenThrow(Exception());
+    mockCacheStorageFetch().thenThrow(Exception());
+
     final future = sut();
 
     expect(future, throwsA(DomainError.unexpected));
@@ -43,8 +45,8 @@ void main() {
 
   test('Should throw UnexpectedError if cacheStorage returns invalid data',
       () async {
-    when(() => cacheStorageSpy.fetch(any()))
-        .thenAnswer((_) async => ["1", null]);
+    mockCacheStorageFetch().thenAnswer((_) async => ["1", null]);
+
     final future = sut();
 
     expect(future, throwsA(DomainError.unexpected));
