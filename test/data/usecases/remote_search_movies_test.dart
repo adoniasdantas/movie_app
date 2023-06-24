@@ -68,8 +68,10 @@ class RemoteSearchMovies implements SearchMovies {
       return (data['results'] as List)
           .map((movieJson) => MovieModel.fromJson(movieJson).toEntity())
           .toList();
-    } on HttpError {
-      throw DomainError.unexpected;
+    } on HttpError catch (httpError) {
+      throw httpError == HttpError.unauthorized
+          ? DomainError.accessDenied
+          : DomainError.unexpected;
     }
   }
 }
@@ -164,5 +166,13 @@ void main() {
     final future = sut(url, movieName);
 
     expect(future, throwsA(DomainError.unexpected));
+  });
+
+  test('Should throw AccessDeniedError if HttpClient returns 401', () async {
+    mockRequestError(HttpError.unauthorized);
+
+    final future = sut(url, movieName);
+
+    expect(future, throwsA(DomainError.accessDenied));
   });
 }
