@@ -105,4 +105,23 @@ void main() {
           .having((success) => success.movies, 'movies', movieList)
     ],
   );
+
+  blocTest(
+    'emits [HomePageStateError] if remoteSearchMovies throws any error',
+    build: () => HomePageBloc(
+      loadTrendingMovies: loadTrendingMoviesSpy,
+      searchMovies: remoteSearchMoviesSpy,
+    ),
+    act: (bloc) {
+      when(() => loadTrendingMoviesSpy(any()))
+          .thenThrow(DomainError.unexpected);
+      bloc.add(LoadTrendingMoviesEvent());
+    },
+    verify: (_) => verify(() => loadTrendingMoviesSpy(any())).called(1),
+    expect: () => [
+      isA<HomePageLoading>(),
+      isA<HomePageError>().having(
+          (errorState) => errorState.error, 'error', DomainError.unexpected)
+    ],
+  );
 }
