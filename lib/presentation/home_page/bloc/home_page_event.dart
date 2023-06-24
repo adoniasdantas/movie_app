@@ -8,3 +8,8 @@ abstract class HomePageEvent extends Equatable {
 }
 
 class LoadTrendingMoviesEvent extends HomePageEvent {}
+
+class RemoteSearchMoviesEvent extends HomePageEvent {
+  final String movieName;
+  const RemoteSearchMoviesEvent(this.movieName);
+}
