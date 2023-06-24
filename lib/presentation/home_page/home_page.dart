@@ -13,6 +13,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final movieNameController = TextEditingController();
+
   @override
   void initState() {
     widget.bloc.add(LoadTrendingMoviesEvent());
@@ -33,6 +35,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Expanded(
                   child: TextFormField(
+                    controller: movieNameController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -41,9 +44,23 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.search),
+                ValueListenableBuilder(
+                  valueListenable: movieNameController,
+                  builder: (context, value, child) {
+                    return IconButton(
+                      onPressed: movieNameController.text.length >= 3
+                          ? () => widget.bloc.add(
+                                RemoteSearchMoviesEvent(
+                                  movieNameController.text,
+                                ),
+                              )
+                          : null,
+                      icon: const Icon(
+                        Icons.search,
+                        color: Colors.lightBlue,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
