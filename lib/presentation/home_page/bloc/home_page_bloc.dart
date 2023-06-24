@@ -30,7 +30,7 @@ class HomePageBloc extends Bloc<HomePageEvent, HomePageState> {
       emit(HomePageLoading());
       try {
         final result = await searchMovies.call(
-          'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1',
+          'https://api.themoviedb.org/3/search/movie?include_adult=false&language=en-US&page=1',
           event.movieName,
         );
         emit(HomePageSuccess(result));
