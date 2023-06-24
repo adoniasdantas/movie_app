@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:movie_app/domain/errors/errors.dart';
 
 import 'package:movie_app/presentation/home_page/bloc/home_page_bloc.dart';
 
@@ -72,7 +73,18 @@ class _HomePageState extends State<HomePage> {
                   if (state is HomePageLoading) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (state is HomePageError) {
-                    return Text(state.error.name);
+                    return Column(
+                      children: [
+                        Text(state.error.message),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            widget.bloc.add(LoadTrendingMoviesEvent());
+                          },
+                          child: const Text('Reload the latest movies'),
+                        )
+                      ],
+                    );
                   } else if (state is HomePageSuccess) {
                     return ListView.separated(
                       itemCount: state.movies.length,
