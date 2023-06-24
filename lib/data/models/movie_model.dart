@@ -5,7 +5,7 @@ class MovieModel {
   final int id;
   final String title;
   final String overview;
-  final double averageGrade;
+  final num averageGrade;
   final DateTime releaseDate;
   final String posterPath;
   final List<String>? genres;
@@ -26,9 +26,9 @@ class MovieModel {
         id: json['id'],
         title: json['title'],
         overview: json['overview'],
-        averageGrade: json['averageGrade'],
-        releaseDate: DateTime.parse(json['releaseDate']),
-        posterPath: json['posterPath'],
+        averageGrade: (json['vote_average'] as num).toDouble(),
+        releaseDate: DateTime.parse(json['release_date']),
+        posterPath: json['poster_path'],
         genres:
             (json['genres'] as List?)?.map<String>((genre) => genre).toList(),
       );
@@ -41,7 +41,7 @@ class MovieModel {
         id: id,
         title: title,
         overview: overview,
-        averageGrade: averageGrade,
+        averageGrade: averageGrade.toDouble(),
         releaseDate: releaseDate,
         posterPath: posterPath,
       );
