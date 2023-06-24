@@ -9,18 +9,19 @@ import 'package:movie_app/domain/usecases/usecases.dart';
 
 class HttpClientSpy extends Mock implements HttpClient {}
 
-class SearchMovies implements LoadMovies {
+class RemoteSearchMovies implements SearchMovies {
   final String token;
   final HttpClient httpClient;
 
-  const SearchMovies({
+  const RemoteSearchMovies({
     required this.httpClient,
     required this.token,
   });
+
   @override
-  Future<List<MovieEntity>> call(String url) async {
+  Future<List<MovieEntity>> call(String url, String movieName) async {
     await httpClient.request(
-      url: url,
+      url: '$url&query=$movieName',
       method: 'GET',
       headers: {'accept': 'application/json', 'Authorization': 'Bearer $token'},
     );
@@ -32,13 +33,15 @@ void main() {
   late HttpClientSpy httpClientSpy;
   late String url;
   late String token;
+  late String movieName;
   late SearchMovies sut;
 
   setUp(() {
     httpClientSpy = HttpClientSpy();
     url = faker.internet.httpUrl();
     token = faker.jwt.valid();
-    sut = SearchMovies(httpClient: httpClientSpy, token: token);
+    movieName = faker.lorem.sentence();
+    sut = RemoteSearchMovies(httpClient: httpClientSpy, token: token);
   });
 
   test('Should call httpClient with correct values', () async {
@@ -50,11 +53,11 @@ void main() {
       ),
     ).thenAnswer((_) async => _);
 
-    await sut(url);
+    await sut(url, movieName);
 
     verify(
       () => httpClientSpy.request(
-        url: url,
+        url: '$url&query=$movieName',
         method: 'GET',
         headers: {
           'accept': 'application/json',
