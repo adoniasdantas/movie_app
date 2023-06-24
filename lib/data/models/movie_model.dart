@@ -1,3 +1,4 @@
+import 'package:movie_app/api.dart';
 import 'package:movie_app/data/http/http.dart';
 import 'package:movie_app/domain/entities/movie_entity.dart';
 
@@ -28,7 +29,7 @@ class MovieModel {
         overview: json['overview'],
         averageGrade: (json['vote_average'] as num).toDouble(),
         releaseDate: DateTime.parse(json['release_date']),
-        posterPath: json['poster_path'],
+        posterPath: '$initialUrlJunk${json['poster_path']}',
         genres:
             (json['genres'] as List?)?.map<String>((genre) => genre).toList(),
       );
