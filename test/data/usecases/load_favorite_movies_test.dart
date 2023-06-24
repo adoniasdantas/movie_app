@@ -58,4 +58,13 @@ void main() {
 
     expect(future, throwsA(DomainError.unexpected));
   });
+
+  test('Should throw UnexpectedError if cacheStorage returns invalid data',
+      () async {
+    when(() => cacheStorageSpy.fetch(any()))
+        .thenAnswer((_) async => ["1", null]);
+    final future = sut();
+
+    expect(future, throwsA(DomainError.unexpected));
+  });
 }
