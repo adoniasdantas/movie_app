@@ -2,6 +2,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:movie_app/domain/errors/errors.dart';
 import 'package:movie_app/domain/usecases/usecases.dart';
 
 abstract class CacheStorage {
@@ -17,8 +18,12 @@ class CacheLoadFavoriteMovies implements LoadFavoriteMovies {
 
   @override
   Future<List<int>> call() async {
-    final movieIds = await cacheStorage.fetch('favorite-movies');
-    return movieIds;
+    try {
+      final movieIds = await cacheStorage.fetch('favorite-movies');
+      return movieIds;
+    } catch (_) {
+      throw DomainError.unexpected;
+    }
   }
 }
 
@@ -45,5 +50,12 @@ void main() {
     final movieIds = await sut();
 
     expect(movieIds, data);
+  });
+
+  test('Should throws UnexpectedError if cacheStorage throws', () async {
+    when(() => cacheStorageSpy.fetch(any())).thenThrow(Exception());
+    final future = sut();
+
+    expect(future, throwsA(DomainError.unexpected));
   });
 }
