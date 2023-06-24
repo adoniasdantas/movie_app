@@ -6,6 +6,7 @@ import 'package:movie_app/data/http/http.dart';
 import 'package:movie_app/data/models/models.dart';
 
 import 'package:movie_app/domain/entities/movie_entity.dart';
+import 'package:movie_app/domain/errors/errors.dart';
 import 'package:movie_app/domain/usecases/usecases.dart';
 
 final validResponse = {
@@ -29,6 +30,19 @@ final validResponse = {
   ]
 };
 
+final invalidResponse = {
+  'results': [
+    {
+      "Id": faker.randomGenerator.integer(100),
+      "Title": faker.lorem.sentence(),
+      "Overview": faker.lorem.sentence(),
+      "Vote_average": faker.randomGenerator.decimal(scale: 2, min: 0),
+      "Release_date": faker.date.dateTime(),
+      "Poster_path": faker.internet.httpUrl(),
+    },
+  ]
+};
+
 class HttpClientSpy extends Mock implements HttpClient {}
 
 class RemoteSearchMovies implements SearchMovies {
@@ -42,14 +56,21 @@ class RemoteSearchMovies implements SearchMovies {
 
   @override
   Future<List<MovieEntity>> call(String url, String movieName) async {
-    final data = await httpClient.request(
-      url: '$url&query=$movieName',
-      method: 'GET',
-      headers: {'accept': 'application/json', 'Authorization': 'Bearer $token'},
-    );
-    return (data['results'] as List)
-        .map((movieJson) => MovieModel.fromJson(movieJson).toEntity())
-        .toList();
+    try {
+      final data = await httpClient.request(
+        url: '$url&query=$movieName',
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': 'Bearer $token'
+        },
+      );
+      return (data['results'] as List)
+          .map((movieJson) => MovieModel.fromJson(movieJson).toEntity())
+          .toList();
+    } on HttpError {
+      throw DomainError.unexpected;
+    }
   }
 }
 
@@ -116,5 +137,14 @@ void main() {
         posterPath: result[1].posterPath,
       ),
     ]);
+  });
+
+  test('Should return UnexpectedError if httpClient returns invalid data',
+      () async {
+    mockRequestCall(invalidResponse);
+
+    final future = sut(url, movieName);
+
+    expect(future, throwsA(DomainError.unexpected));
   });
 }
