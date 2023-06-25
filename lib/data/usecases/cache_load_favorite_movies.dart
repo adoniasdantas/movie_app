@@ -14,6 +14,7 @@ class CacheLoadFavoriteMovies implements LoadFavoriteMovies {
   Future<List<int>> call() async {
     try {
       final json = await cacheStorage.fetch('favorite-movies');
+      if (json.isEmpty) return [];
       final movieIds = await jsonDecode(json) as List;
       return movieIds.map((id) => id as int).toList();
     } catch (_) {

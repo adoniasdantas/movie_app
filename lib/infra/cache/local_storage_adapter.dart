@@ -12,7 +12,8 @@ class LocalStorageAdapter implements CacheStorageFetch, CacheStorageSave {
   @override
   Future<String> fetch(String key) async {
     try {
-      return await localStorage.getItem(key);
+      final data = await localStorage.getItem(key) as String;
+      return data;
     } catch (_) {
       throw DomainError.unexpected;
     }

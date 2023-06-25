@@ -39,6 +39,13 @@ void main() {
     expect(movieIds, resultData);
   });
 
+  test('Should return an empty list if cache is empty', () async {
+    mockCacheStorageFetch().thenAnswer((_) async => "");
+    final movieIds = await sut();
+
+    expect(movieIds, []);
+  });
+
   test('Should throws UnexpectedError if cacheStorage throws', () async {
     mockCacheStorageFetch().thenThrow(Exception());
 
