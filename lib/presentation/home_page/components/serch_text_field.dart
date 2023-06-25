@@ -17,6 +17,7 @@ class SearchTextField extends StatelessWidget {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
+              hintText: 'Movie name (at least 3 characters)',
             ),
           ),
         ),
