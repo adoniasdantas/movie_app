@@ -13,3 +13,8 @@ class SaveFavoriteMovieEvent extends FavoriteMoviesEvent {
   final int movieId;
   const SaveFavoriteMovieEvent(this.movieId);
 }
+
+class RemoveFavoriteMovieEvent extends FavoriteMoviesEvent {
+  final int movieId;
+  const RemoveFavoriteMovieEvent(this.movieId);
+}

@@ -36,5 +36,12 @@ class FavoriteMoviesBloc
         emit(FavoriteMoviesError(state.favoriteMoviesIds, error));
       }
     });
+
+    on<RemoveFavoriteMovieEvent>((event, emit) async {
+      final newList = List<int>.from(state.favoriteMoviesIds)
+        ..remove(event.movieId);
+      await saveFavoriteMovies(newList);
+      emit(FavoriteMoviesSuccess(newList));
+    });
   }
 }

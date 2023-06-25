@@ -124,4 +124,27 @@ void main() {
           )
     ],
   );
+
+  blocTest(
+    'emits [FavoriteMoviesSuccess] if removeFavoriteMovie runs successfuly',
+    build: () => FavoriteMoviesBloc(
+      saveFavoriteMovies: saveFavoriteMoviesSpy,
+      loadFavoriteMovies: loadFavoriteMoviesSpy,
+    ),
+    setUp: () {
+      movieId = favoriteMoviesIds.last;
+    },
+    act: (bloc) => bloc.add(RemoveFavoriteMovieEvent(movieId)),
+    seed: () {
+      return FavoriteMoviesSuccess(favoriteMoviesIds) as FavoriteMoviesState;
+    },
+    verify: (_) => verify(() => saveFavoriteMoviesSpy(any())).called(1),
+    expect: () => [
+      isA<FavoriteMoviesSuccess>().having(
+        (success) => success.favoriteMoviesIds,
+        'favoriteMoviesIds',
+        favoriteMoviesIds..remove(movieId),
+      )
+    ],
+  );
 }
