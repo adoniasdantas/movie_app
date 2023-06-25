@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -38,7 +37,7 @@ void main() {
   setUp(() {
     cacheStorageSpy = CacheStorageSpy();
     sut = CacheSaveFavoriteMovies(cacheStorage: cacheStorageSpy);
-    movieIds = faker.randomGenerator.numbers(100, 3);
+    movieIds = [1, 2, 3];
     encodedData = jsonEncode(movieIds);
     mockCacheStorageSave().thenAnswer((_) async => _);
   });
