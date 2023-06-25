@@ -147,4 +147,31 @@ void main() {
       )
     ],
   );
+
+  blocTest(
+    'emits [FavoriteMoviesError] if removeFavoriteMovie throw error',
+    build: () => FavoriteMoviesBloc(
+      saveFavoriteMovies: saveFavoriteMoviesSpy,
+      loadFavoriteMovies: loadFavoriteMoviesSpy,
+    ),
+    setUp: () {
+      movieId = favoriteMoviesIds.last;
+    },
+    act: (bloc) {
+      when(() => saveFavoriteMoviesSpy(any()))
+          .thenThrow(DomainError.unexpected);
+      bloc.add(RemoveFavoriteMovieEvent(movieId));
+    },
+    seed: () {
+      return FavoriteMoviesSuccess(favoriteMoviesIds) as FavoriteMoviesState;
+    },
+    verify: (_) => verify(() => saveFavoriteMoviesSpy(any())).called(1),
+    expect: () => [
+      isA<FavoriteMoviesError>().having(
+        (success) => success.favoriteMoviesIds,
+        'favoriteMoviesIds',
+        favoriteMoviesIds,
+      )
+    ],
+  );
 }

@@ -38,10 +38,14 @@ class FavoriteMoviesBloc
     });
 
     on<RemoveFavoriteMovieEvent>((event, emit) async {
-      final newList = List<int>.from(state.favoriteMoviesIds)
-        ..remove(event.movieId);
-      await saveFavoriteMovies(newList);
-      emit(FavoriteMoviesSuccess(newList));
+      try {
+        final newList = List<int>.from(state.favoriteMoviesIds)
+          ..remove(event.movieId);
+        await saveFavoriteMovies(newList);
+        emit(FavoriteMoviesSuccess(newList));
+      } on DomainError catch (error) {
+        emit(FavoriteMoviesError(state.favoriteMoviesIds, error));
+      }
     });
   }
 }
