@@ -24,23 +24,25 @@ void main() {
     mockLocalStorageGetItem().thenAnswer((_) => resultData);
   });
 
-  test('Should call Local Storage with correct value', () async {
-    await sut.fetch(key);
+  group('Fetch', () {
+    test('Should call Local Storage with correct value', () async {
+      await sut.fetch(key);
 
-    verify(() => localStorageSpy.getItem(key)).called(1);
-  });
+      verify(() => localStorageSpy.getItem(key)).called(1);
+    });
 
-  test('Should return data correctly', () async {
-    final data = await sut.fetch(key);
+    test('Should return data correctly', () async {
+      final data = await sut.fetch(key);
 
-    expect(data, resultData);
-  });
+      expect(data, resultData);
+    });
 
-  test('Should throw UnexpectedError if LocalStorage throws', () async {
-    mockLocalStorageGetItem().thenThrow(Exception());
+    test('Should throw UnexpectedError if LocalStorage throws', () async {
+      mockLocalStorageGetItem().thenThrow(Exception());
 
-    final future = sut.fetch(key);
+      final future = sut.fetch(key);
 
-    expect(future, throwsA(DomainError.unexpected));
+      expect(future, throwsA(DomainError.unexpected));
+    });
   });
 }
