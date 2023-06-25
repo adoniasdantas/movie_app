@@ -16,7 +16,7 @@ class SplashPage extends StatelessWidget {
         child: BlocConsumer<FavoriteMoviesBloc, FavoriteMoviesState>(
           bloc: bloc..add(LoadFavoriteMoviesEvent()),
           listenWhen: (previous, current) =>
-              current is FavoriteMoviesInitial ||
+              current is FavoriteMoviesSuccess ||
               current is FavoriteMoviesError,
           listener: (context, state) {
             Navigator.of(context).pushReplacementNamed(HomePage.route);
