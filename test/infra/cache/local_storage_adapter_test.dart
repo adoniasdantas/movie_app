@@ -55,5 +55,11 @@ void main() {
 
       verify(() => localStorageSpy.setItem(key, value)).called(1);
     });
+
+    test('Should save data correctly', () async {
+      final future = sut.save(key, value);
+
+      expect(future, isA<void>());
+    });
   });
 }
