@@ -6,6 +6,7 @@ import 'package:mocktail/mocktail.dart';
 
 import 'package:movie_app/data/cache/cache.dart';
 
+import 'package:movie_app/domain/errors/errors.dart';
 import 'package:movie_app/domain/usecases/usecases.dart';
 
 class CacheStorageSpy extends Mock implements CacheStorageSave {}
@@ -17,7 +18,11 @@ class CacheSaveFavoriteMovies implements SaveFavoriteMovies {
 
   @override
   Future<void> call(List<int> movieIds) async {
-    await cacheStorage.save(jsonEncode(movieIds));
+    try {
+      await cacheStorage.save(jsonEncode(movieIds));
+    } catch (_) {
+      throw DomainError.unexpected;
+    }
   }
 }
 
@@ -47,5 +52,13 @@ void main() {
     final future = sut(movieIds);
 
     expect(future, isA<void>());
+  });
+
+  test('Should throws UnexpectedError if cacheStorage throws', () async {
+    mockCacheStorageSave().thenThrow(Exception());
+
+    final future = sut(movieIds);
+
+    expect(future, throwsA(DomainError.unexpected));
   });
 }
