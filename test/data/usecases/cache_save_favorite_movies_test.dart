@@ -19,7 +19,8 @@ class CacheSaveFavoriteMovies implements SaveFavoriteMovies {
   @override
   Future<void> call(List<int> movieIds) async {
     try {
-      await cacheStorage.save(jsonEncode(movieIds));
+      final uniqueIds = movieIds.toSet().toList();
+      await cacheStorage.save(jsonEncode(uniqueIds));
     } catch (_) {
       throw DomainError.unexpected;
     }
@@ -46,6 +47,13 @@ void main() {
     await sut(movieIds);
 
     verify(() => cacheStorageSpy.save(encodedData)).called(1);
+  });
+
+  test('Should not pass duplicated ids', () async {
+    const ids = [1, 1, 1, 2];
+    await sut(ids);
+
+    verify(() => cacheStorageSpy.save(jsonEncode([1, 2]))).called(1);
   });
 
   test('Should run successfully if no error is thrown', () async {
