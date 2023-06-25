@@ -14,6 +14,8 @@ void main() {
   late String key;
   late String value;
 
+  void mockLocalStorageReadyCall() =>
+      when(() => localStorageSpy.ready).thenAnswer((_) async => true);
   When mockLocalStorageGetItem() => when(() => localStorageSpy.getItem(key));
   When mockLocalStorageSetItem() =>
       when(() => localStorageSpy.setItem(key, value));
@@ -23,6 +25,7 @@ void main() {
     localStorageSpy = LocalStorageSpy();
     sut = LocalStorageAdapter(localStorage: localStorageSpy);
     value = "any_value";
+    mockLocalStorageReadyCall();
     mockLocalStorageGetItem().thenAnswer((_) async => value);
     mockLocalStorageSetItem().thenAnswer((_) async => _);
   });
