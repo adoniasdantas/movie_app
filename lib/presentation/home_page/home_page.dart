@@ -121,17 +121,16 @@ class _HomePageState extends State<HomePage> {
                                 movie.id,
                               );
                               return IconButton(
-                                icon: Icon(
-                                  isFavorite ? Icons.star : Icons.star_border,
-                                ),
-                                onPressed: isFavorite
-                                    ? () {}
-                                    : () {
-                                        favoriteMoviesBloc.add(
-                                          SaveFavoriteMovieEvent(movie.id),
-                                        );
-                                      },
-                              );
+                                  icon: Icon(
+                                    isFavorite ? Icons.star : Icons.star_border,
+                                  ),
+                                  onPressed: () {
+                                    favoriteMoviesBloc.add(
+                                      isFavorite
+                                          ? RemoveFavoriteMovieEvent(movie.id)
+                                          : SaveFavoriteMovieEvent(movie.id),
+                                    );
+                                  });
                             },
                           ),
                         );
