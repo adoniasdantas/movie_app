@@ -42,4 +42,10 @@ void main() {
 
     verify(() => cacheStorageSpy.save(encodedData)).called(1);
   });
+
+  test('Should run successfully if no error is thrown', () async {
+    final future = sut(movieIds);
+
+    expect(future, isA<void>());
+  });
 }
