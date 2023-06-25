@@ -12,16 +12,19 @@ void main() {
   late LocalStorageSpy localStorageSpy;
   late LocalStorageAdapter sut;
   late String key;
-  late String resultData;
+  late String value;
 
   When mockLocalStorageGetItem() => when(() => localStorageSpy.getItem(key));
+  When mockLocalStorageSetItem() =>
+      when(() => localStorageSpy.setItem(key, value));
 
   setUp(() async {
     key = faker.lorem.sentence();
     localStorageSpy = LocalStorageSpy();
     sut = LocalStorageAdapter(localStorage: localStorageSpy);
-    resultData = "[1, 2, 3]";
-    mockLocalStorageGetItem().thenAnswer((_) => resultData);
+    value = "any_value";
+    mockLocalStorageGetItem().thenAnswer((_) async => value);
+    mockLocalStorageSetItem().thenAnswer((_) async => _);
   });
 
   group('Fetch', () {
@@ -34,7 +37,7 @@ void main() {
     test('Should return data correctly', () async {
       final data = await sut.fetch(key);
 
-      expect(data, resultData);
+      expect(data, value);
     });
 
     test('Should throw UnexpectedError if LocalStorage throws', () async {
@@ -43,6 +46,14 @@ void main() {
       final future = sut.fetch(key);
 
       expect(future, throwsA(DomainError.unexpected));
+    });
+  });
+
+  group('Save', () {
+    test('Should call Local Storage with correct value', () async {
+      await sut.save(key, value);
+
+      verify(() => localStorageSpy.setItem(key, value)).called(1);
     });
   });
 }

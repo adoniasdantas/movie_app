@@ -4,7 +4,7 @@ import 'package:movie_app/data/cache/cache.dart';
 
 import 'package:movie_app/domain/errors/errors.dart';
 
-class LocalStorageAdapter implements CacheStorageFetch {
+class LocalStorageAdapter implements CacheStorageFetch, CacheStorageSave {
   final LocalStorage localStorage;
 
   const LocalStorageAdapter({required this.localStorage});
@@ -16,5 +16,10 @@ class LocalStorageAdapter implements CacheStorageFetch {
     } catch (_) {
       throw DomainError.unexpected;
     }
+  }
+
+  @override
+  Future<void> save(String key, String value) async {
+    await localStorage.setItem(key, value);
   }
 }
