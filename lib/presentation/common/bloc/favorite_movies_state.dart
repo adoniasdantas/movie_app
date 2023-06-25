@@ -15,3 +15,8 @@ class FavoriteMoviesSuccess extends FavoriteMoviesState {
   final List<int> favoriteMoviesIds;
   const FavoriteMoviesSuccess(this.favoriteMoviesIds);
 }
+
+class FavoriteMoviesError extends FavoriteMoviesState {
+  final DomainError error;
+  const FavoriteMoviesError(this.error);
+}

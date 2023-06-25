@@ -3,7 +3,9 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:movie_app/domain/errors/errors.dart';
 import 'package:movie_app/domain/usecases/usecases.dart';
+
 import 'package:movie_app/presentation/common/bloc/favorite_movies_bloc.dart';
 
 class SaveFavoriteMoviesSpy extends Mock implements SaveFavoriteMovies {}
@@ -49,6 +51,24 @@ void main() {
         'favoriteMoviesIds',
         favoriteMoviesIds,
       )
+    ],
+  );
+
+  blocTest(
+    'emits [FavoriteMoviesError] if loadFavoriteMovies throws any error',
+    build: () => FavoriteMoviesBloc(
+      saveFavoriteMovies: saveFavoriteMoviesSpy,
+      loadFavoriteMovies: loadFavoriteMoviesSpy,
+    ),
+    act: (bloc) {
+      when(() => loadFavoriteMoviesSpy()).thenThrow(DomainError.unexpected);
+      bloc.add(LoadFavoriteMoviesEvent());
+    },
+    verify: (_) => verify(() => loadFavoriteMoviesSpy()).called(1),
+    expect: () => [
+      isA<FavoriteMoviesLoading>(),
+      isA<FavoriteMoviesError>().having(
+          (errorState) => errorState.error, 'error', DomainError.unexpected)
     ],
   );
 }
