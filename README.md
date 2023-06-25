@@ -1,16 +1,30 @@
 # movie_app
 
-A new Flutter project.
+A Flutter App that allows the user
+
+1. To search for movies located on [TMDB](https://www.themoviedb.org/)
+2. Save and delete the movies from favorites locally
+
+A new Flutter project build to practice my skills on
+
+1. Using clean architecture
+2. Using TDD
+3. Writing leaner code
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Create a file named api.dart inside the lib folder
 
-A few resources to get you started if this is your first Flutter project:
+Add two variables inside it
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+```
+const bearerToken = 'your-bearer-token from imdb';
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+const initialUrlJunk = "https://image.tmdb.org/t/p/w200/";
+```
+
+`bearerToken` can be created using [this link](https://developer.themoviedb.org/reference/introauthentication#api-key-quick-start)
+
+`initialUrlJunk` can be chosen according to [this link](https://developer.themoviedb.org/docs/image-basics)
+
+If you need help to set up the project, [contact me](mailto:adoniasdantas@gmail.com)
