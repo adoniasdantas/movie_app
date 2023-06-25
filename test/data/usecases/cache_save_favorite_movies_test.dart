@@ -8,10 +8,10 @@ import 'package:movie_app/data/cache/cache.dart';
 
 import 'package:movie_app/domain/usecases/usecases.dart';
 
-class CacheStorageSpy extends Mock implements CacheStorage {}
+class CacheStorageSpy extends Mock implements CacheStorageSave {}
 
 class CacheSaveFavoriteMovies implements SaveFavoriteMovies {
-  final CacheStorage cacheStorage;
+  final CacheStorageSave cacheStorage;
 
   const CacheSaveFavoriteMovies({required this.cacheStorage});
 

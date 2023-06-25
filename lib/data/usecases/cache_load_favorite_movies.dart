@@ -6,7 +6,7 @@ import 'package:movie_app/domain/errors/errors.dart';
 import 'package:movie_app/domain/usecases/usecases.dart';
 
 class CacheLoadFavoriteMovies implements LoadFavoriteMovies {
-  final CacheStorage cacheStorage;
+  final CacheStorageFetch cacheStorage;
 
   const CacheLoadFavoriteMovies({required this.cacheStorage});
 

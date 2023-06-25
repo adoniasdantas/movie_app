@@ -9,7 +9,7 @@ import 'package:movie_app/data/cache/cache.dart';
 import 'package:movie_app/domain/errors/errors.dart';
 import 'package:movie_app/data/usecases/usecases.dart';
 
-class CacheStorageSpy extends Mock implements CacheStorage {}
+class CacheStorageSpy extends Mock implements CacheStorageFetch {}
 
 void main() {
   late CacheStorageSpy cacheStorageSpy;

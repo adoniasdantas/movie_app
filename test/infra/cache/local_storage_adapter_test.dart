@@ -7,7 +7,7 @@ import 'package:movie_app/domain/errors/errors.dart';
 
 class LocalStorageSpy extends Mock implements LocalStorage {}
 
-class LocalStorageAdapter implements CacheStorage {
+class LocalStorageAdapter implements CacheStorageFetch {
   final LocalStorage localStorage;
 
   const LocalStorageAdapter({required this.localStorage});
