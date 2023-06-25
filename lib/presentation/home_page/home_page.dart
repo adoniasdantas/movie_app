@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movie_app/domain/errors/errors.dart';
+import 'package:movie_app/presentation/common/bloc/favorite_movies_bloc.dart';
 
 import 'package:movie_app/presentation/home_page/bloc/home_page_bloc.dart';
 
@@ -110,9 +111,28 @@ class _HomePageState extends State<HomePage> {
                             maxLines: 3,
                             overflow: TextOverflow.fade,
                           ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.star_border),
-                            onPressed: () {},
+                          trailing: BlocBuilder<FavoriteMoviesBloc,
+                              FavoriteMoviesState>(
+                            builder: (context, state) {
+                              final favoriteMoviesBloc =
+                                  context.read<FavoriteMoviesBloc>();
+                              final isFavorite =
+                                  state.favoriteMoviesIds.contains(
+                                movie.id,
+                              );
+                              return IconButton(
+                                icon: Icon(
+                                  isFavorite ? Icons.star : Icons.star_border,
+                                ),
+                                onPressed: isFavorite
+                                    ? () {}
+                                    : () {
+                                        favoriteMoviesBloc.add(
+                                          SaveFavoriteMovieEvent(movie.id),
+                                        );
+                                      },
+                              );
+                            },
                           ),
                         );
                       },
