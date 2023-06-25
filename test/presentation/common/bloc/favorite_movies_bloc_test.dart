@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_cast
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -89,6 +91,37 @@ void main() {
         'favoriteMoviesIds',
         [movieId],
       )
+    ],
+  );
+
+  blocTest(
+    'emits [HomePageStateError] with same ids if remoteSearchMovies throws any error',
+    build: () => FavoriteMoviesBloc(
+      saveFavoriteMovies: saveFavoriteMoviesSpy,
+      loadFavoriteMovies: loadFavoriteMoviesSpy,
+    ),
+    act: (bloc) {
+      when(() => saveFavoriteMoviesSpy(any()))
+          .thenThrow(DomainError.unexpected);
+      bloc.add(SaveFavoriteMovieEvent(movieId));
+    },
+    seed: () {
+      return FavoriteMoviesSuccess(favoriteMoviesIds) as FavoriteMoviesState;
+    },
+    verify: (_) => verify(() => saveFavoriteMoviesSpy(any())).called(1),
+    expect: () => [
+      isA<FavoriteMoviesLoading>(),
+      isA<FavoriteMoviesError>()
+          .having(
+            (errorState) => errorState.error,
+            'error',
+            DomainError.unexpected,
+          )
+          .having(
+            (success) => success.favoriteMoviesIds,
+            'favoriteMoviesIds',
+            favoriteMoviesIds,
+          )
     ],
   );
 }
