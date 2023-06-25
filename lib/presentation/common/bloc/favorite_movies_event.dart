@@ -8,3 +8,8 @@ abstract class FavoriteMoviesEvent extends Equatable {
 }
 
 class LoadFavoriteMoviesEvent extends FavoriteMoviesEvent {}
+
+class SaveFavoriteMovieEvent extends FavoriteMoviesEvent {
+  final int movieId;
+  const SaveFavoriteMovieEvent(this.movieId);
+}

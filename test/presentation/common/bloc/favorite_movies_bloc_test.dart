@@ -17,6 +17,7 @@ void main() {
   late LoadFavoriteMovies loadFavoriteMoviesSpy;
   late FavoriteMoviesBloc sut;
   late List<int> favoriteMoviesIds;
+  late int movieId;
 
   setUp(() {
     loadFavoriteMoviesSpy = LoadFavoriteMoviesSpy();
@@ -25,6 +26,7 @@ void main() {
       saveFavoriteMovies: saveFavoriteMoviesSpy,
       loadFavoriteMovies: loadFavoriteMoviesSpy,
     );
+    movieId = faker.randomGenerator.integer(100, min: 1);
     favoriteMoviesIds = faker.randomGenerator.numbers(100, 3);
     when(() => loadFavoriteMoviesSpy()).thenAnswer(
       (_) async => favoriteMoviesIds,
@@ -69,6 +71,24 @@ void main() {
       isA<FavoriteMoviesLoading>(),
       isA<FavoriteMoviesError>().having(
           (errorState) => errorState.error, 'error', DomainError.unexpected)
+    ],
+  );
+
+  blocTest(
+    'emits [FavoriteMoviesSuccess] if saveFavoriteMovie runs successfuly',
+    build: () => FavoriteMoviesBloc(
+      saveFavoriteMovies: saveFavoriteMoviesSpy,
+      loadFavoriteMovies: loadFavoriteMoviesSpy,
+    ),
+    act: (bloc) => bloc.add(SaveFavoriteMovieEvent(movieId)),
+    verify: (_) => verify(() => saveFavoriteMoviesSpy(any())).called(1),
+    expect: () => [
+      isA<FavoriteMoviesLoading>(),
+      isA<FavoriteMoviesSuccess>().having(
+        (success) => success.favoriteMoviesIds,
+        'favoriteMoviesIds',
+        [movieId],
+      )
     ],
   );
 }

@@ -1,22 +1,28 @@
 part of 'favorite_movies_bloc.dart';
 
 abstract class FavoriteMoviesState extends Equatable {
-  const FavoriteMoviesState();
+  final List<int> favoriteMoviesIds;
+  const FavoriteMoviesState(this.favoriteMoviesIds);
+
+  const FavoriteMoviesState.copyWith(this.favoriteMoviesIds);
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [favoriteMoviesIds];
 }
 
-class FavoriteMoviesInitial extends FavoriteMoviesState {}
+class FavoriteMoviesInitial extends FavoriteMoviesState {
+  FavoriteMoviesInitial() : super.copyWith([]);
+}
 
-class FavoriteMoviesLoading extends FavoriteMoviesState {}
+class FavoriteMoviesLoading extends FavoriteMoviesState {
+  const FavoriteMoviesLoading(super.favoriteMoviesIds);
+}
 
 class FavoriteMoviesSuccess extends FavoriteMoviesState {
-  final List<int> favoriteMoviesIds;
-  const FavoriteMoviesSuccess(this.favoriteMoviesIds);
+  const FavoriteMoviesSuccess(super.favoriteMoviesIds);
 }
 
 class FavoriteMoviesError extends FavoriteMoviesState {
   final DomainError error;
-  const FavoriteMoviesError(this.error);
+  const FavoriteMoviesError(super.favoriteMoviesIds, this.error);
 }

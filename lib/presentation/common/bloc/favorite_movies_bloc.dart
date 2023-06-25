@@ -17,11 +17,23 @@ class FavoriteMoviesBloc
   }) : super(FavoriteMoviesInitial()) {
     on<LoadFavoriteMoviesEvent>((event, emit) async {
       try {
-        emit(FavoriteMoviesLoading());
+        emit(FavoriteMoviesLoading(state.favoriteMoviesIds));
         final favoriteMoviesIds = await loadFavoriteMovies();
         emit(FavoriteMoviesSuccess(favoriteMoviesIds));
       } on DomainError catch (error) {
-        emit(FavoriteMoviesError(error));
+        emit(FavoriteMoviesError(state.favoriteMoviesIds, error));
+      }
+    });
+
+    on<SaveFavoriteMovieEvent>((event, emit) async {
+      try {
+        emit(FavoriteMoviesLoading(state.favoriteMoviesIds));
+        final newList = List<int>.from(state.favoriteMoviesIds)
+          ..add(event.movieId);
+        await saveFavoriteMovies(newList);
+        emit(FavoriteMoviesSuccess(newList));
+      } on DomainError catch (error) {
+        emit(FavoriteMoviesError(state.favoriteMoviesIds, error));
       }
     });
   }
