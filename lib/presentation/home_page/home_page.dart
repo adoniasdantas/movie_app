@@ -5,7 +5,7 @@ import 'package:movie_app/domain/errors/errors.dart';
 import 'package:movie_app/presentation/home_page/bloc/home_page_bloc.dart';
 
 class HomePage extends StatefulWidget {
-  static const route = '/';
+  static const route = '/home-page';
   final HomePageBloc bloc;
   const HomePage({required this.bloc, super.key});
 
