@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movie_app/domain/errors/errors.dart';
-import 'package:movie_app/presentation/common/bloc/favorite_movies_bloc.dart';
 
 import 'package:movie_app/presentation/home_page/bloc/home_page_bloc.dart';
+import 'package:movie_app/presentation/home_page/components/movie_list.dart';
+import 'package:movie_app/presentation/home_page/components/serch_text_field.dart';
 
 class HomePage extends StatefulWidget {
   static const route = '/home-page';
@@ -15,8 +16,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final movieNameController = TextEditingController();
-
   @override
   void initState() {
     widget.bloc.add(LoadTrendingMoviesEvent());
@@ -33,39 +32,7 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: movieNameController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ValueListenableBuilder(
-                  valueListenable: movieNameController,
-                  builder: (context, value, child) {
-                    return IconButton(
-                      onPressed: movieNameController.text.length >= 3
-                          ? () => widget.bloc.add(
-                                RemoteSearchMoviesEvent(
-                                  movieNameController.text,
-                                ),
-                              )
-                          : null,
-                      icon: const Icon(
-                        Icons.search,
-                        color: Colors.lightBlue,
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
+            SearchTextField(bloc: widget.bloc),
             const SizedBox(height: 16),
             Expanded(
               child: BlocBuilder<HomePageBloc, HomePageState>(
@@ -83,61 +50,15 @@ class _HomePageState extends State<HomePage> {
                             widget.bloc.add(LoadTrendingMoviesEvent());
                           },
                           child: const Text('Reload the latest movies'),
-                        )
+                        ),
                       ],
                     );
                   } else if (state is HomePageSuccess) {
-                    return ListView.separated(
-                      itemCount: state.movies.length,
-                      separatorBuilder: (context, index) => const Divider(
-                        height: 16,
-                        thickness: 2,
-                        color: Colors.lightBlue,
-                      ),
-                      itemBuilder: (context, index) {
-                        final movie = state.movies[index];
-                        return ListTile(
-                          title: Text(movie.title),
-                          leading: SizedBox(
-                            height: 48,
-                            width: 48,
-                            child: CircleAvatar(
-                              radius: 20,
-                              backgroundImage: NetworkImage(movie.posterPath),
-                            ),
-                          ),
-                          subtitle: Text(
-                            movie.overview,
-                            maxLines: 3,
-                            overflow: TextOverflow.fade,
-                          ),
-                          trailing: BlocBuilder<FavoriteMoviesBloc,
-                              FavoriteMoviesState>(
-                            builder: (context, state) {
-                              final favoriteMoviesBloc =
-                                  context.read<FavoriteMoviesBloc>();
-                              final isFavorite =
-                                  state.favoriteMoviesIds.contains(
-                                movie.id,
-                              );
-                              return IconButton(
-                                  icon: Icon(
-                                    isFavorite ? Icons.star : Icons.star_border,
-                                  ),
-                                  onPressed: () {
-                                    favoriteMoviesBloc.add(
-                                      isFavorite
-                                          ? RemoveFavoriteMovieEvent(movie.id)
-                                          : SaveFavoriteMovieEvent(movie.id),
-                                    );
-                                  });
-                            },
-                          ),
-                        );
-                      },
-                    );
+                    return MovieList(movies: state.movies);
                   }
-                  return Container();
+                  return const Center(
+                    child: Text("No videos found"),
+                  );
                 },
               ),
             ),
