@@ -19,7 +19,7 @@ class CacheSaveFavoriteMovies implements SaveFavoriteMovies {
   Future<void> call(List<int> movieIds) async {
     try {
       final uniqueIds = movieIds.toSet().toList();
-      await cacheStorage.save(jsonEncode(uniqueIds));
+      await cacheStorage.save('favorite-movies', jsonEncode(uniqueIds));
     } catch (_) {
       throw DomainError.unexpected;
     }
@@ -31,28 +31,30 @@ void main() {
   late CacheSaveFavoriteMovies sut;
   late List<int> movieIds;
   late String encodedData;
+  late String key;
 
-  When mockCacheStorageSave() => when(() => cacheStorageSpy.save(any()));
+  When mockCacheStorageSave() => when(() => cacheStorageSpy.save(any(), any()));
 
   setUp(() {
     cacheStorageSpy = CacheStorageSpy();
     sut = CacheSaveFavoriteMovies(cacheStorage: cacheStorageSpy);
     movieIds = [1, 2, 3];
     encodedData = jsonEncode(movieIds);
+    key = 'favorite-movies';
     mockCacheStorageSave().thenAnswer((_) async => _);
   });
 
   test('Should call cacheStorage with correct values', () async {
     await sut(movieIds);
 
-    verify(() => cacheStorageSpy.save(encodedData)).called(1);
+    verify(() => cacheStorageSpy.save(key, encodedData)).called(1);
   });
 
   test('Should not pass duplicated ids', () async {
     const ids = [1, 1, 1, 2];
     await sut(ids);
 
-    verify(() => cacheStorageSpy.save(jsonEncode([1, 2]))).called(1);
+    verify(() => cacheStorageSpy.save(key, jsonEncode([1, 2]))).called(1);
   });
 
   test('Should run successfully if no error is thrown', () async {

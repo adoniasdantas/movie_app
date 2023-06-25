@@ -3,5 +3,5 @@ abstract class CacheStorageFetch {
 }
 
 abstract class CacheStorageSave {
-  Future<void> save(String value);
+  Future<void> save(String key, String value);
 }
