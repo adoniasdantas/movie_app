@@ -61,5 +61,13 @@ void main() {
 
       expect(future, isA<void>());
     });
+
+    test('Should throw UnexpectedError if LocalStorage throws', () async {
+      mockLocalStorageSetItem().thenThrow(Exception());
+
+      final future = sut.save(key, value);
+
+      expect(future, throwsA(DomainError.unexpected));
+    });
   });
 }
